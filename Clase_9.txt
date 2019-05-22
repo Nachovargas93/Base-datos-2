@@ -1,0 +1,56 @@
+ 
+
+1.Get the amount of cities per country in the database. Sort them by country, country_id.
+2.Get the amount of cities per country in the database. Show only the countries with more than 10 cities, order from the highest amount of cities to the lowest   
+3.Generate a report with customer (first, last) name, address, total films rented and the total money spent renting films. 
+	*Show the ones who spent more money first.
+4.Which film categories have the larger film duration (comparing average)?
+	*Order by average in descending order
+5.Show sales per film rating
+
+
+1. Obtener la cantidad de ciudades por país en la base de datos. Ordenarlos por país, country_id.
+2. Obtener la cantidad de ciudades por país en la base de datos. Muestre solo los países con más de 10 ciudades, ordene desde la mayor cantidad de ciudades a la más baja
+3. Genere un informe con el nombre (nombre, apellido) del cliente, la dirección, el total de películas alquiladas y el dinero total gastado en el alquiler de películas.
+	* Muestra a los que gastaron más dinero primero.
+4. ¿Qué categorías de películas tienen la mayor duración de la película (comparando el promedio)?
+	* Orden por promedio en orden descendente
+5. Mostrar ventas por película de calificación
+
+-- 1
+ 
+select country.country, COUNT(*) as numero_ciudad
+from city inner join country using (country_id)
+group by country.country
+order by country.country, country.country_id
+
+ --2
+ 
+select country.country, count(*)
+from city inner join country using (country_id)
+group by city.country_id having COUNT(*) >10
+
+ --3
+
+SELECT c1.customer_id,
+	(SELECT COUNT(*) FROM rental WHERE rental.customer_id = c1.customer_id) AS cnt,
+	(SELECT SUM(payment.amount) FROM rental INNER JOIN payment ON rental.rental_id = payment.rental_id WHERE rental.customer_id = c1.customer_id ) AS suma
+	FROM customer c1 ORDER BY suma DESC;
+
+ --4
+
+SELECT rating, AVG(`length`)
+FROM film
+GROUP BY `length`
+HAVING AVG(`length`) > (SELECT AVG(`length`) FROM film)
+ORDER BY `length` DESC;
+
+ --5
+
+SELECT film.rating, SUM(payment.amount) AS Ammount
+FROM payment 
+INNER JOIN rental USING (rental_id)
+INNER JOIN inventory USING (inventory_id)
+INNER JOIN film USING (film_id)
+GROUP BY film.rating
+ORDER BY film.rating DESC;
